@@ -239,7 +239,6 @@ def notify_reviewers():
             reviews = get_pr_reviews(pull_request)
             logger.info(f"Found {len(reviews)} reviews for PR {pr_number}.")
             block_element = format_pr_message(pull_request, reviews)
-            print(block_element)
             # Map Slack users to PR messages
             for review in reviews:
                 github_username = review["user"]
