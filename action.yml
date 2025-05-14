@@ -1,0 +1,39 @@
+name: 'Notify PR Reviewers'
+description: 'Notifies PR reviewers via Slack for pending reviews'
+author: 'DefectDojo Maintainers'
+inputs:
+  owner:
+    description: 'GitHub owner/organization to query the repository from'
+    required: true
+  repository:
+    description: 'GitHub repository to fetch PRs from'
+    required: true
+  gh_token:
+    description: 'GitHub token for accessing PR data'
+    required: true
+  slack_token:
+    description: 'Slack token for sending notifications'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+      shell: bash
+
+    - name: Run PR reminder script
+      run: |
+        python3 ${{ github.action_path }}/pr-reminder.py
+      shell: bash
+      env:
+        REPO_OWNER: ${{ inputs.owner }}
+        REPO_NAME: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.gh_token }}
+        SLACK_TOKEN: ${{ inputs.slack_token }}
