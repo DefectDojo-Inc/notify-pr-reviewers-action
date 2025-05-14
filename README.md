@@ -34,10 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Notify reviewers in Slack
-        uses: your-org/notify-pr-reviewers-action@master
+        uses: DefectDojo-Inc/notify-pr-reviewers-action@master
         with:
-          owner: "DefectDojo"
-          repository: "django-DefectDojo"
+          owner: "DefectDojo" # Fill this out for the actual user/organization
+          repository: "django-DefectDojo" # Fill this our for the actual repository
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_BOT_TOKEN }}
 ```
