@@ -38,7 +38,7 @@ jobs:
         with:
           owner: "DefectDojo" # Fill this out for the actual user/organization
           repository: "django-DefectDojo" # Fill this our for the actual repository
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          gh_token: ${{ secrets.GH_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
 ```
 
