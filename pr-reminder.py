@@ -251,7 +251,6 @@ def notify_reviewers():
                     in block_element["accessory"]["options"][0]["text"]["text"]
                 ):
                     user_pr_map[github_username].append(block_element)
-        print(user_pr_map)
         # Send Slack messages to reviewers
         for github_username, pr_list in user_pr_map.items():
             if pr_list:
@@ -260,6 +259,7 @@ def notify_reviewers():
                         slack_email,
                         get_slack_user_id(slack_email),
                     ):
+                        logger.info(f"Sending slack ping to {github_username}")
                         send_slack_message(slack_user_id, {
                             "blocks": [
                                 *base_blocks,

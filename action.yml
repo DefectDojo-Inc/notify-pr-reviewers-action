@@ -25,14 +25,11 @@ runs:
         python-version: "3.13"
 
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install requests
+      run: python -m pip install --upgrade pip && pip install requests
       shell: bash
 
     - name: Run PR reminder script
-      run: |
-        python3 ${{ github.action_path }}/pr-reminder.py
+      run: LOG_LEVEL="INFO" python3 ${{ github.action_path }}/pr-reminder.py
       shell: bash
       env:
         REPO_OWNER: ${{ inputs.owner }}
