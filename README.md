@@ -39,7 +39,7 @@ jobs:
           owner: "DefectDojo" # Fill this out for the actual user/organization
           repository: "django-DefectDojo" # Fill this our for the actual repository
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          slack_token: ${{ secrets.SLACK_TOKEN }}
 ```
 
 💡 Tip: Make sure your Slack bot has access to the appropriate channel and the chat:write permission.
