@@ -250,7 +250,6 @@ def notify_reviewers():
                         "text"
                     ]
                 ):
-                    print(f"\t {len(review_message)}")
                     if len(review_message) > 150:
                         block_element["accessory"]["options"][0]["text"]["text"] = (
                             "Review Status: There is too much review content to be displayed... Please see the PR for details"
