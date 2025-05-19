@@ -162,6 +162,7 @@ def format_pr_message(pull_request: dict, reviews: list[dict]) -> dict:
     pull_request_number = pull_request["number"]
     state_to_emoji_map = {
         "pending": ":eyes:",
+        "dismissed": ":x:",
         "commented": ":speech_balloon:",
         "approved": ":white_check_mark:",
         "changes_requested": ":tisktisk:",
