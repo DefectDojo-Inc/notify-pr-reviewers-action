@@ -165,6 +165,7 @@ def format_pr_message(pull_request: dict, reviews: list[dict]) -> dict:
         "commented": ":speech_balloon:",
         "approved": ":white_check_mark:",
         "changes_requested": ":tisktisk:",
+        "submitted_at": ":email:"
     }
     constructed_title = f"{repo_name} (#{pull_request_number}): {pull_request_title}"
     header = f"<{pull_request_url}|{constructed_title}>"
@@ -180,7 +181,7 @@ def format_pr_message(pull_request: dict, reviews: list[dict]) -> dict:
     for review in reviews:
         user = review["user"]
         state = review["state"]
-        reviews_statuses += f"{state_to_emoji_map[state.lower()]} - {user}\n"
+        reviews_statuses += f"{state_to_emoji_map.get(state.lower(), f"Not Mapped: {state.lower()}")} - {user}\n"
     # Construct the block element
     return {
         "type": "section",
