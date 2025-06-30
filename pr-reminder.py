@@ -68,21 +68,43 @@ def get_slack_user_id(slack_email: str) -> int:
 
 
 # Helper function to fetch pull requests from GitHub
-def get_pull_requests() -> dict:
+def get_pull_requests() -> list:
     headers = {"Authorization": f"token {GH_TOKEN}"}
-    response = requests.get(
-        f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/pulls",
-        headers=headers,
-        timeout=30,
-    )
+    all_prs = []
+    page = 1
+    per_page = 100  # GitHub API max per page
 
-    if response.status_code != 200:
-        logger.info(f"Error fetching PRs: {response.text}")
-        response.raise_for_status()
+    logger.info(f"Starting to fetch open pull requests for {REPO_OWNER}/{REPO_NAME}")
 
-    all_prs = response.json()
-    non_draft_prs = [pr for pr in all_prs if not pr.get("draft", False)]
-    return non_draft_prs
+    while True:
+        logger.info(f"Fetching page {page} of open pull requests...")
+        response = requests.get(
+            f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/pulls",
+            headers=headers,
+            params={"state": "open", "per_page": per_page, "page": page},
+            timeout=30,
+        )
+
+        if response.status_code != 200:
+            logger.error(f"Error fetching PRs on page {page}: {response.text}")
+            response.raise_for_status()
+
+        prs = response.json()
+        if not prs:
+            logger.info("No more pull requests found.")
+            break  # No more pages
+
+        logger.info(f"Fetched {len(prs)} pull requests on page {page}.")
+
+        # Filter out draft PRs immediately
+        non_draft_prs = [pr for pr in prs if not pr.get("draft", False)]
+        logger.info(f"{len(non_draft_prs)} non-draft pull requests found on page {page}.")
+
+        all_prs.extend(non_draft_prs)
+        page += 1
+
+    logger.info(f"Finished fetching pull requests. Total non-draft open PRs: {len(all_prs)}")
+    return all_prs
 
 
 # Helper function to get PR reviews (approved, changes requested, or pending)
