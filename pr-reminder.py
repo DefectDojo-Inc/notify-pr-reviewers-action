@@ -24,6 +24,7 @@ GITHUB_USER_NAME_TO_SLACK_EMAIL = {
     "ger-defect-dojo": "german@defectdojo.com",
     "Jino-T": "jino@defectdojo.com",
     "tecnologer": "rey@defectdojo.com",
+    "paulOsinski": "paul@defectdojo.com",
 }
 
 
