@@ -201,6 +201,11 @@ def format_pr_message(pull_request: dict, reviews: list[dict]) -> dict:
         user = review["user"]
         state = review["state"]
         reviews_statuses += f"{state_to_emoji_map.get(state.lower(), f"Not Mapped: {state.lower()}")} - {user}\n"
+    # Check if the text exceeds Slack's character limit
+    if len(reviews_statuses) > 150:
+        reviews_statuses = (
+            "Review Status: There is too much review content to be displayed... Please see the PR for details"
+        )
     # Construct the block element
     return {
         "type": "section",
@@ -228,7 +233,7 @@ def notify_reviewers():
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"<https://github.com/{REPO_OWNER}/{REPO_NAME}/pulls?q=is%3Aopen+is%3Apr+review-requested%3A%40me|{REPO_OWNER}/{REPO_NAME}> needs your review! Click the link for the following list in GitHub:",
+                "text": f"<https://github.com/{REPO_OWNER}/{REPO_NAME}/pulls?q=is%3Aopen+draft%3Afalse+is%3Apr+review-requested%3A%40me|{REPO_OWNER}/{REPO_NAME}> needs your review! Click the link for the following list in GitHub:",
             },
         },
         {
@@ -265,15 +270,7 @@ def notify_reviewers():
                 if github_username not in user_pr_map:
                     user_pr_map[github_username] = []
                 # Determine if we should prune any non pending reviews
-                if f":eyes: - {github_username}" in (
-                    review_message := block_element["accessory"]["options"][0]["text"][
-                        "text"
-                    ]
-                ):
-                    if len(review_message) > 150:
-                        block_element["accessory"]["options"][0]["text"]["text"] = (
-                            "Review Status: There is too much review content to be displayed... Please see the PR for details"
-                        )
+                if review["state"] == "PENDING":
                     user_pr_map[github_username].append(block_element)
         # Send Slack messages to reviewers
         for github_username, pr_list in user_pr_map.items():
@@ -287,6 +284,9 @@ def notify_reviewers():
                         send_slack_message(
                             slack_user_id, {"blocks": [*base_blocks, *pr_list]}
                         )
+                        # print(f"Sent Slack message to {github_username} for ({len(pr_list)}) PRs:")
+                        # for pr in pr_list:
+                        #     print("\t-", pr["text"]["text"].split("|")[1].split(">")[0])
     except Exception as e:
         logger.info(f"Error occurred: {e}")
         raise
