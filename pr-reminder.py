@@ -173,9 +173,19 @@ def send_slack_message(slack_user_id: int, message: str) -> None:
 
 
 # Helper function to format the PR message with review statuses
+def escape_mrkdwn(text: str) -> str:
+    """Make text literal in Slack mrkdwn.
+
+    PR titles come from contributors and can be edited later; unescaped, `<!channel>`
+    pings the channel and `<url|text>` posts a disguised link. Slack's control characters
+    are only &, < and >; & goes first so entities stay single.
+    """
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
 def format_pr_message(pull_request: dict, reviews: list[dict]) -> dict:
-    repo_name = pull_request["head"]["repo"]["name"]
-    pull_request_title = pull_request["title"]
+    repo_name = escape_mrkdwn(pull_request["head"]["repo"]["name"])
+    pull_request_title = escape_mrkdwn(pull_request["title"])
     pull_request_url = pull_request["html_url"]
     pull_request_number = pull_request["number"]
     state_to_emoji_map = {
@@ -194,13 +204,13 @@ def format_pr_message(pull_request: dict, reviews: list[dict]) -> dict:
         and (milestone_url := milestone.get("html_url"))
         and (milestone_title := milestone.get("title"))
     ):
-        header += f" - Merge by: {get_prior_thursday(datetime.strptime(milestone_due_date, '%Y-%m-%dT%H:%M:%SZ'))} for release <{milestone_url}|{milestone_title}>"
+        header += f" - Merge by: {get_prior_thursday(datetime.strptime(milestone_due_date, '%Y-%m-%dT%H:%M:%SZ'))} for release <{milestone_url}|{escape_mrkdwn(milestone_title)}>"
     # Format reviews and append to the message (only latest review status per user)
     reviews_statuses = "\n    Review Status:\n"
     for review in reviews:
         user = review["user"]
         state = review["state"]
-        reviews_statuses += f"{state_to_emoji_map.get(state.lower(), f"Not Mapped: {state.lower()}")} - {user}\n"
+        reviews_statuses += f"{state_to_emoji_map.get(state.lower(), f"Not Mapped: {state.lower()}")} - {escape_mrkdwn(str(user))}\n"
     # Check if the text exceeds Slack's character limit
     if len(reviews_statuses) > 150:
         reviews_statuses = (
